@@ -44,14 +44,12 @@ class ApiClient(ABC):
         return str(self.base_url).removesuffix('/') + url + '?' + urlencode(query_params)
 
     async def check_response(self, response: ClientResponse, config: RequestConfig[Any]) -> None:
-        status, text = response.status, await response.text()
-
-        if status < 400:
+        if response.status < 400:
             return
 
-        if status not in config.allowed_error_codes:
+        if response.status not in config.allowed_error_codes:
             await self.log_request(response, config, logging.ERROR)
-            raise self.api_client_error_class(config, status, text)
+            raise self.api_client_error_class(config, response.status, await response.text())
 
     async def parse_response[
         ReturnType
