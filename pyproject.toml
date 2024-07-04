@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "api_client"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Alex Pirogov <pirogovalexand00@mail.ru>"]
 readme = "README.md"
