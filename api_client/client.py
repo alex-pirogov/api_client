@@ -1,6 +1,7 @@
 import json
 import logging
 from abc import ABC
+from contextlib import asynccontextmanager
 from logging import Logger
 from typing import Any, Callable, Dict, Optional, Type
 from urllib.parse import urlencode
@@ -40,8 +41,13 @@ class ApiClient(ABC):
         self.headers = headers or {}
         self.auth = auth
 
-    def get_url(self, url: str, **query_params: str) -> str:
-        return str(self.base_url).removesuffix('/') + url + '?' + urlencode(query_params)
+    def get_url[ReturnType](self, config: RequestConfig[ReturnType]) -> str:
+        url = str(self.base_url).removesuffix('/') + config.url
+
+        if config.query_params:
+            url += '?' + urlencode(config.query_params)
+
+        return url
 
     async def check_response(self, response: ClientResponse, config: RequestConfig[Any]) -> None:
         if response.status < 400:
@@ -79,15 +85,27 @@ class ApiClient(ABC):
         text += f"RESP:\n{content if content else '*no content*'}"
         self.logger.log(level, text)
 
-    async def make_request[ReturnType](self, config: RequestConfig[ReturnType]) -> ReturnType:
+    @asynccontextmanager
+    async def get_session[ReturnType](self, config: RequestConfig[ReturnType]):
         async with ClientSession(
             headers={**self.headers, **config.headers}, auth=self.auth
         ) as session:
-            async with session.request(
-                method=config.method,
-                url=self.get_url(config.url, **config.query_params),
-                json=config.payload,
-            ) as response:
+            yield session
+
+    @asynccontextmanager
+    async def session_request[
+        ReturnType
+    ](self, session: ClientSession, config: RequestConfig[ReturnType]):
+        async with session.request(
+            method=config.method,
+            url=self.get_url(config),
+            json=config.payload,
+        ) as response:
+            yield response
+
+    async def make_request[ReturnType](self, config: RequestConfig[ReturnType]) -> ReturnType:
+        async with self.get_session(config) as session:
+            async with self.session_request(session, config) as response:
                 await response.read()
                 await self.check_response(response, config)
                 await self.log_request(response, config)
