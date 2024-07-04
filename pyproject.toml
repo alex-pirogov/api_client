@@ -18,6 +18,12 @@ isort = "^5.13.2"
 black = "^24.2.0"
 
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.2.2"
+pytest-mock = "^3.14.0"
+pytest-asyncio = "^0.23.7"
+
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -41,3 +47,15 @@ skip-string-normalization = true
 profile = "black"
 line_length = 80
 known_first_party = ["api_client"]
+
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "debug"
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore:.*:pydantic.PydanticDeprecatedSince20",
+    "ignore:.*:DeprecationWarning",
+]
+markers = []
+addopts = []
