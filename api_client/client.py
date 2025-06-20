@@ -45,7 +45,7 @@ class ApiClient(ABC):
         url = str(self.base_url).removesuffix('/') + config.url
 
         if config.query_params:
-            url += '?' + urlencode(config.query_params, doseq=config.self_query_params_doseq)
+            url += '?' + urlencode(config.query_params, doseq=config.query_params_doseq)
 
         return url
 

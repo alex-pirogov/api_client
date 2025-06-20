@@ -39,7 +39,7 @@ class GenericRequestConfig[ReturnType](ABC):
         self.return_type = return_type
         self.allowed_error_codes = allowed_error_codes or []
         self.headers = headers or {}
-        self.self_query_params_doseq = self_query_params_doseq
+        self.query_params_doseq = self_query_params_doseq
 
 
 class RequestConfig[ReturnType](GenericRequestConfig[ReturnType]):
