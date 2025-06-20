@@ -30,7 +30,7 @@ class GenericRequestConfig[ReturnType](ABC):
         payload: JSON | None = None,
         allowed_error_codes: list[int] | None = None,
         headers: dict[str, str] | None = None,
-        self_query_params_doseq: bool = False,
+        query_params_doseq: bool = False,
     ) -> None:
         self.method = method
         self.url = url or ''
@@ -39,7 +39,7 @@ class GenericRequestConfig[ReturnType](ABC):
         self.return_type = return_type
         self.allowed_error_codes = allowed_error_codes or []
         self.headers = headers or {}
-        self.query_params_doseq = self_query_params_doseq
+        self.query_params_doseq = query_params_doseq
 
 
 class RequestConfig[ReturnType](GenericRequestConfig[ReturnType]):
