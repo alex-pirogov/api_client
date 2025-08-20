@@ -32,17 +32,23 @@ class ApiClient(ABC):
     def __init__(
         self,
         base_url: AnyHttpUrl,
+        prefix: str | None = None,
         logger: Logger | None = None,
         headers: Optional[Dict[str, str]] = None,
         auth: Optional[BasicAuth] = None,
     ) -> None:
         self.base_url = base_url
+        self.prefix = prefix
         self.logger = logger
         self.headers = headers or {}
         self.auth = auth
 
     def get_url[ReturnType](self, config: RequestConfig[ReturnType]) -> str:
-        url = str(self.base_url).removesuffix('/') + config.url
+        url = str(self.base_url).removesuffix('/')
+        if self.prefix is not None:
+            url += self.prefix.removesuffix('/')
+
+        url += config.url
 
         if config.query_params:
             url += '?' + urlencode(config.query_params, doseq=config.query_params_doseq)
@@ -78,7 +84,7 @@ class ApiClient(ABC):
 
         status, content = response.status, await response.text()
 
-        text = f"[{config.method}] -> {status}\nURL: {config.url}\n"
+        text = f"[{config.method}] -> {status}\nURL: {self.get_url(config)}\n"
         if config.payload:
             text += f"PAYLOAD:\n{json.dumps(config.payload, ensure_ascii=False, indent=2)}\n"
 
