@@ -84,7 +84,7 @@ class ApiClient(ABC):
 
         status, content = response.status, await response.text()
 
-        text = f"[{config.method}] -> {status}\nURL: {config.url}\n"
+        text = f"[{config.method}] -> {status}\nURL: {self.get_url(config)}\n"
         if config.payload:
             text += f"PAYLOAD:\n{json.dumps(config.payload, ensure_ascii=False, indent=2)}\n"
 
